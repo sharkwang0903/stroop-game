@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="在 60 秒內判斷文字實際顯示的顏色，挑戰你的專注力與反應速度。">
+    <meta name="theme-color" content="#ffffff">
+    <title>Stroop 顏色衝突</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='white'/%3E%3Cpath d='M16 16h14v14H16zm18 0h14v14H34zM16 34h14v14H16zm18 0h14v14H34z' fill='none' stroke='%23181818' stroke-width='5'/%3E%3C/svg%3E">
+    <link rel="stylesheet" href="style.css">
+    <script src="game.js" defer></script>
+    <script src="desktop-controls.js" defer></script>
+    <script src="mobile-controls.js" defer></script>
+    <script src="main.js" defer></script>
+  </head>
+  <body>
+    <main class="app-shell">
+      <section id="home-screen" class="screen home-screen" aria-labelledby="home-title">
+        <header class="intro">
+          <p class="eyebrow">60 秒專注力挑戰</p>
+          <h1 id="home-title">Stroop<br>顏色衝突</h1>
+          <div class="intro-copy">
+            <p>畫面會出現一個寫著顏色名稱的中文字。</p>
+            <p>請忽略文字本身的意思，快速選擇它實際顯示的顏色。</p>
+            <p class="example"><strong>例如：</strong>「紅」如果是用藍色顯示，正確答案就是「藍」。</p>
+            <p>這個挑戰考驗你的專注力、反應速度與抑制干擾的能力。</p>
+          </div>
+        </header>
+
+        <section class="mode-section" aria-labelledby="mode-title">
+          <h2 id="mode-title">遊戲模式</h2>
+          <article class="mode-card">
+            <div class="mode-copy">
+              <span class="mode-number" aria-hidden="true">01</span>
+              <div>
+                <h3>一般模式</h3>
+                <p class="mode-duration">60 秒 Stroop 挑戰</p>
+                <p>在 60 秒內盡可能快速且準確地完成更多題目。</p>
+              </div>
+            </div>
+            <button id="start-button" class="button button-primary" type="button">開始挑戰</button>
+          </article>
+        </section>
+      </section>
+
+      <section id="game-screen" class="screen game-screen" aria-labelledby="game-instruction" hidden>
+        <header class="game-header">
+          <p id="timer" class="timer" role="timer" aria-live="polite">剩餘時間：60 秒</p>
+        </header>
+
+        <div class="game-stage">
+          <p id="game-instruction" class="instruction">請選擇「字體的顏色」</p>
+          <div class="stimulus-frame">
+            <span id="stimulus" class="stimulus" aria-label="題目">紅</span>
+          </div>
+
+          <div id="answer-grid" class="answer-grid" aria-label="顏色答案">
+            <button class="answer-button answer-red" type="button" data-color="red">紅色</button>
+            <button class="answer-button answer-blue" type="button" data-color="blue">藍色</button>
+            <button class="answer-button answer-green" type="button" data-color="green">綠色</button>
+            <button class="answer-button answer-yellow" type="button" data-color="yellow">黃色</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="result-screen" class="screen result-screen" aria-labelledby="result-title" hidden>
+        <header class="result-header">
+          <p class="eyebrow">挑戰完成</p>
+          <h1 id="result-title">你的結果</h1>
+        </header>
+
+        <dl class="results-grid" aria-label="遊戲結果">
+          <div class="result-item result-item-featured">
+            <dt>總題數</dt>
+            <dd><span id="result-total">0</span><small>題</small></dd>
+          </div>
+          <div class="result-item">
+            <dt>答對</dt>
+            <dd><span id="result-correct">0</span><small>題</small></dd>
+          </div>
+          <div class="result-item">
+            <dt>準確率</dt>
+            <dd id="result-accuracy">--</dd>
+          </div>
+          <div class="result-item">
+            <dt>平均反應時間</dt>
+            <dd><span id="result-reaction">--</span><small id="reaction-unit">秒</small></dd>
+          </div>
+          <div class="result-item">
+            <dt>最高連續答對</dt>
+            <dd><span id="result-streak">0</span><small>題</small></dd>
+          </div>
+        </dl>
+
+        <div class="result-actions">
+          <button id="replay-button" class="button button-primary" type="button">再玩一次</button>
+          <button id="home-button" class="button button-secondary" type="button">回到首頁</button>
+        </div>
+
+        <article class="science-card">
+          <p class="section-index">關於這個挑戰</p>
+          <h2>什麼是斯特魯普效應？</h2>
+          <p>斯特魯普效應（Stroop effect）是指：當文字的意義與文字實際呈現的顏色互相衝突時，人們通常需要更長的時間判斷顏色，也更容易出錯。</p>
+          <p>其中一個重要原因是，對熟練閱讀者而言，「閱讀文字」是一個高度自動化的認知歷程。</p>
+          <p>即使我們只想判斷字體顏色，大腦仍會不由自主地處理文字的意義。</p>
+          <p>當「字義」與「字色」給出不同訊息時，就會產生認知干擾，使反應變慢。</p>
+        </article>
+      </section>
+    </main>
+  </body>
+</html>
