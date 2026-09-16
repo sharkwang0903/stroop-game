@@ -9,7 +9,8 @@
   const MODES = Object.freeze({
     normal: Object.freeze({ label: "一般模式", coloredOptions: true, questionMode: "fontColor" }),
     expert: Object.freeze({ label: "專家模式", coloredOptions: false, questionMode: "fontColor" }),
-    hard: Object.freeze({ label: "困難模式", coloredOptions: false, questionMode: "random" })
+    hard: Object.freeze({ label: "困難模式", coloredOptions: false, questionMode: "random" }),
+    survival: Object.freeze({ label: "極限生存", coloredOptions: false, questionMode: "random" })
   });
   const COLORS = Object.freeze([
     { id: "red", word: "紅", css: "var(--red)" },
@@ -26,8 +27,10 @@
       mode,
       status: "home",
       startedAt: 0,
+      finishedAt: 0,
       endsAt: 0,
       currentQuestion: null,
+      currentOptions: [],
       questionStartedAt: 0,
       acceptingAnswer: false,
       total: 0,
@@ -61,6 +64,8 @@
     elements.resultReaction = document.getElementById("result-reaction");
     elements.reactionUnit = document.getElementById("reaction-unit");
     elements.resultStreak = document.getElementById("result-streak");
+    elements.survivalResultItem = document.getElementById("survival-result-item");
+    elements.resultSurvivalTime = document.getElementById("result-survival-time");
     showScreen("home");
   }
 
@@ -165,6 +170,34 @@
     });
   }
 
+  function renderStandardOptions() {
+    elements.answerButtons.forEach((button, index) => {
+      const color = COLORS[index];
+      const isStandardOption = Boolean(color);
+
+      button.hidden = !isStandardOption;
+      button.style.removeProperty("color");
+      if (isStandardOption) {
+        button.textContent = color.word;
+        button.dataset.color = color.id;
+      }
+    });
+    state.currentOptions = [];
+  }
+
+  function renderSurvivalOptions() {
+    const options = window.StroopSurvivalMode.createOptions(state.currentQuestion, COLORS);
+    state.currentOptions = options;
+
+    elements.answerButtons.forEach((button, index) => {
+      const option = options[index];
+      button.hidden = false;
+      button.textContent = option.word;
+      button.dataset.color = option.answerValue;
+      button.style.color = option.fontCss;
+    });
+  }
+
   function renderQuestion() {
     state.currentQuestion = makeQuestion();
     state.acceptingAnswer = false;
@@ -174,6 +207,11 @@
     elements.stimulus.textContent = state.currentQuestion.word;
     elements.stimulus.style.color = state.currentQuestion.inkCss;
     elements.instruction.textContent = QUESTION_TYPES[state.currentQuestion.questionType].prompt;
+    if (state.mode === "survival") {
+      renderSurvivalOptions();
+    } else {
+      renderStandardOptions();
+    }
     setAnswerButtonsDisabled(false);
 
     requestAnimationFrame(() => {
@@ -190,8 +228,13 @@
     }
 
     const remainingMs = Math.max(0, state.endsAt - performance.now());
-    const remainingSeconds = Math.ceil(remainingMs / 1000);
-    elements.timer.textContent = `剩餘時間：${remainingSeconds} 秒`;
+    if (state.mode === "survival") {
+      const remainingSeconds = Math.ceil(remainingMs / 100) / 10;
+      elements.timer.textContent = `剩餘時間：${remainingSeconds.toFixed(1)} 秒`;
+    } else {
+      const remainingSeconds = Math.ceil(remainingMs / 1000);
+      elements.timer.textContent = `剩餘時間：${remainingSeconds} 秒`;
+    }
 
     if (remainingMs <= 0) {
       finishGame();
@@ -211,14 +254,22 @@
     state = createInitialState(selectedMode);
     state.status = "playing";
     state.startedAt = performance.now();
-    state.endsAt = state.startedAt + GAME_DURATION_MS;
+    const isSurvival = selectedMode === "survival";
+    const gameDurationMs = isSurvival
+      ? window.StroopSurvivalMode.INITIAL_TIME_MS
+      : GAME_DURATION_MS;
+    state.endsAt = state.startedAt + gameDurationMs;
 
     applyModePresentation();
     showScreen("playing");
-    elements.timer.textContent = "剩餘時間：60 秒";
+    elements.timer.textContent = isSurvival
+      ? "剩餘時間：20.0 秒"
+      : "剩餘時間：60 秒";
     renderQuestion();
-    state.timerIntervalId = window.setInterval(renderTimer, 100);
-    state.endTimeoutId = window.setTimeout(finishGame, GAME_DURATION_MS);
+    state.timerIntervalId = window.setInterval(renderTimer, isSurvival ? 50 : 100);
+    if (!isSurvival) {
+      state.endTimeoutId = window.setTimeout(finishGame, GAME_DURATION_MS);
+    }
   }
 
   function restartGame() {
@@ -252,6 +303,11 @@
       state.streak += 1;
       state.maximumStreak = Math.max(state.maximumStreak, state.streak);
       state.correctReactionTimes.push(reactionTimeMs);
+      if (state.mode === "survival") {
+        const remainingMs = Math.max(0, state.endsAt - submittedAt);
+        state.endsAt = submittedAt + window.StroopSurvivalMode.addCorrectBonus(remainingMs);
+        renderTimer();
+      }
     } else {
       state.wrong += 1;
       state.streak = 0;
@@ -290,6 +346,9 @@
       accuracy,
       averageReactionSeconds: averageReactionMs === null ? null : averageReactionMs / 1000,
       maximumStreak: state.maximumStreak,
+      survivalDurationSeconds: state.mode === "survival"
+        ? Math.max(0, state.finishedAt - state.startedAt) / 1000
+        : null,
       answers: state.allAnswers.slice()
     };
   }
@@ -305,6 +364,10 @@
       : results.averageReactionSeconds.toFixed(3);
     elements.reactionUnit.hidden = results.averageReactionSeconds === null;
     elements.resultStreak.textContent = String(results.maximumStreak);
+    elements.survivalResultItem.hidden = results.survivalDurationSeconds === null;
+    if (results.survivalDurationSeconds !== null) {
+      elements.resultSurvivalTime.textContent = results.survivalDurationSeconds.toFixed(1);
+    }
   }
 
   function finishGame() {
@@ -313,6 +376,7 @@
     }
 
     clearTimers();
+    state.finishedAt = performance.now();
     state.status = "results";
     state.acceptingAnswer = false;
     state.questionToken += 1;
@@ -341,6 +405,10 @@
       streak: state.streak,
       maximumStreak: state.maximumStreak,
       currentQuestion: state.currentQuestion ? { ...state.currentQuestion } : null,
+      currentOptions: state.currentOptions.map((option) => ({ ...option })),
+      remainingTimeMs: state.status === "playing"
+        ? Math.max(0, state.endsAt - performance.now())
+        : 0,
       answers: state.allAnswers.slice()
     };
   }

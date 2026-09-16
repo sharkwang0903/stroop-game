@@ -8,6 +8,7 @@
     <title>Stroop 顏色衝突</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='white'/%3E%3Cpath d='M16 16h14v14H16zm18 0h14v14H34zM16 34h14v14H16zm18 0h14v14H34z' fill='none' stroke='%23181818' stroke-width='5'/%3E%3C/svg%3E">
     <link rel="stylesheet" href="style.css">
+    <script src="survival-mode.js" defer></script>
     <script src="game.js" defer></script>
     <script src="desktop-controls.js" defer></script>
     <script src="mobile-controls.js" defer></script>
@@ -65,6 +66,18 @@
               </div>
               <button id="start-hard-button" class="button button-secondary" type="button">開始挑戰</button>
             </article>
+
+            <article class="mode-card">
+              <div class="mode-copy">
+                <span class="mode-number" aria-hidden="true">04</span>
+                <div>
+                  <h3>極限生存</h3>
+                  <p class="mode-duration">20 秒 Stroop 生存挑戰</p>
+                  <p>答對即可獲得額外時間，在倒數歸零前盡可能生存更久。</p>
+                </div>
+              </div>
+              <button id="start-survival-button" class="button button-secondary" type="button">開始挑戰</button>
+            </article>
           </div>
         </section>
       </section>
@@ -85,6 +98,8 @@
             <button class="answer-button answer-blue" type="button" data-color="blue">藍</button>
             <button class="answer-button answer-green" type="button" data-color="green">綠</button>
             <button class="answer-button answer-yellow" type="button" data-color="yellow">黃</button>
+            <button class="answer-button survival-extra" type="button" data-color="red" hidden>紅</button>
+            <button class="answer-button survival-extra" type="button" data-color="blue" hidden>藍</button>
           </div>
         </div>
       </section>
@@ -116,6 +131,10 @@
           <div class="result-item">
             <dt>最高連續答對</dt>
             <dd><span id="result-streak">0</span><small>題</small></dd>
+          </div>
+          <div id="survival-result-item" class="result-item survival-result-item" hidden>
+            <dt>生存時間</dt>
+            <dd><span id="result-survival-time">0.0</span><small>秒</small></dd>
           </div>
         </dl>
 

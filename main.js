@@ -24,6 +24,7 @@
     bindAction("start-normal-button", () => window.StroopGame.start("normal"));
     bindAction("start-expert-button", () => window.StroopGame.start("expert"));
     bindAction("start-hard-button", () => window.StroopGame.start("hard"));
+    bindAction("start-survival-button", () => window.StroopGame.start("survival"));
     bindAction("replay-button", window.StroopGame.restart);
     bindAction("home-button", window.StroopGame.goHome);
   });
