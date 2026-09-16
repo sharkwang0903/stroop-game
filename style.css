@@ -197,6 +197,23 @@ button:focus-visible {
   color: var(--black);
 }
 
+.mode-card .button,
+.result-actions .button {
+  background: var(--white);
+  color: var(--black);
+  box-shadow: none;
+  transition: transform 120ms ease, box-shadow 120ms ease, background-color 120ms ease, color 120ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .mode-card .button:hover,
+  .result-actions .button:hover {
+    background: var(--black);
+    color: var(--white);
+    box-shadow: 0 7px 18px rgb(0 0 0 / 12%);
+  }
+}
+
 .game-screen {
   display: flex;
   min-height: calc(100vh - 132px);

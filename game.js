@@ -311,6 +311,16 @@
     } else {
       state.wrong += 1;
       state.streak = 0;
+      if (state.mode === "survival") {
+        const remainingMs = Math.max(0, state.endsAt - submittedAt);
+        const penalizedRemainingMs = window.StroopSurvivalMode.subtractWrongPenalty(remainingMs);
+        state.endsAt = submittedAt + penalizedRemainingMs;
+        if (penalizedRemainingMs > 0) {
+          renderTimer();
+        } else {
+          elements.timer.textContent = "剩餘時間：0.0 秒";
+        }
+      }
     }
 
     state.allAnswers.push({

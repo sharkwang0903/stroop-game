@@ -3,6 +3,7 @@
 
   const INITIAL_TIME_MS = 20_000;
   const CORRECT_BONUS_MS = 2_000;
+  const WRONG_PENALTY_MS = 2_000;
   const MAX_TIME_MS = 20_000;
   const OPTION_COUNT = 6;
 
@@ -63,11 +64,16 @@
     return Math.min(Math.max(0, remainingMs) + CORRECT_BONUS_MS, MAX_TIME_MS);
   }
 
+  function subtractWrongPenalty(remainingMs) {
+    return Math.max(remainingMs - WRONG_PENALTY_MS, 0);
+  }
+
   window.StroopSurvivalMode = Object.freeze({
     INITIAL_TIME_MS,
     MAX_TIME_MS,
     OPTION_COUNT,
     createOptions,
-    addCorrectBonus
+    addCorrectBonus,
+    subtractWrongPenalty
   });
 })();
