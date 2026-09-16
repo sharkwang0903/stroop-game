@@ -2,6 +2,15 @@
   "use strict";
 
   const GAME_DURATION_MS = 60_000;
+  const QUESTION_TYPES = Object.freeze({
+    fontColor: Object.freeze({ prompt: "請選擇「字體的顏色」" }),
+    wordMeaning: Object.freeze({ prompt: "請選擇「顏色的文字」" })
+  });
+  const MODES = Object.freeze({
+    normal: Object.freeze({ label: "一般模式", coloredOptions: true, questionMode: "fontColor" }),
+    expert: Object.freeze({ label: "專家模式", coloredOptions: false, questionMode: "fontColor" }),
+    hard: Object.freeze({ label: "困難模式", coloredOptions: false, questionMode: "random" })
+  });
   const COLORS = Object.freeze([
     { id: "red", word: "紅", css: "var(--red)" },
     { id: "blue", word: "藍", css: "var(--blue)" },
@@ -12,8 +21,9 @@
   const elements = {};
   let state = createInitialState();
 
-  function createInitialState() {
+  function createInitialState(mode = "normal") {
     return {
+      mode,
       status: "home",
       startedAt: 0,
       endsAt: 0,
@@ -29,6 +39,7 @@
       allAnswers: [],
       answerBag: [],
       congruencyBag: [],
+      questionTypeBag: [],
       timerIntervalId: null,
       endTimeoutId: null,
       questionToken: 0
@@ -39,7 +50,9 @@
     elements.homeScreen = document.getElementById("home-screen");
     elements.gameScreen = document.getElementById("game-screen");
     elements.resultScreen = document.getElementById("result-screen");
+    elements.resultMode = document.getElementById("result-mode");
     elements.timer = document.getElementById("timer");
+    elements.instruction = document.getElementById("game-instruction");
     elements.stimulus = document.getElementById("stimulus");
     elements.answerButtons = Array.from(document.querySelectorAll(".answer-button"));
     elements.resultTotal = document.getElementById("result-total");
@@ -82,19 +95,54 @@
     return state.congruencyBag.pop();
   }
 
+  function refillQuestionTypeBag() {
+    state.questionTypeBag = shuffle([
+      "fontColor",
+      "fontColor",
+      "wordMeaning",
+      "wordMeaning"
+    ]);
+  }
+
+  function takeQuestionType() {
+    const modeConfig = MODES[state.mode];
+    if (modeConfig.questionMode !== "random") {
+      return modeConfig.questionMode;
+    }
+
+    if (state.questionTypeBag.length === 0) {
+      refillQuestionTypeBag();
+    }
+    return state.questionTypeBag.pop();
+  }
+
   function makeQuestion() {
-    const inkColor = takeCorrectColor();
+    const questionType = takeQuestionType();
+    const correctColor = takeCorrectColor();
     const isCongruent = takeCongruency();
-    const wordColor = isCongruent
-      ? inkColor
-      : shuffle(COLORS.filter((color) => color.id !== inkColor.id))[0];
+    let inkColor = correctColor;
+    let wordColor = correctColor;
+
+    if (!isCongruent) {
+      const conflictingColor = shuffle(
+        COLORS.filter((color) => color.id !== correctColor.id)
+      )[0];
+
+      if (questionType === "fontColor") {
+        wordColor = conflictingColor;
+      } else {
+        inkColor = conflictingColor;
+      }
+    }
 
     return {
       word: wordColor.word,
       wordColorId: wordColor.id,
       inkColorId: inkColor.id,
       inkCss: inkColor.css,
-      isCongruent
+      isCongruent,
+      questionType,
+      correctColorId: correctColor.id
     };
   }
 
@@ -102,6 +150,13 @@
     elements.homeScreen.hidden = name !== "home";
     elements.gameScreen.hidden = name !== "playing";
     elements.resultScreen.hidden = name !== "results";
+  }
+
+  function applyModePresentation() {
+    const modeConfig = MODES[state.mode];
+    elements.gameScreen.dataset.mode = state.mode;
+    elements.gameScreen.dataset.options = modeConfig.coloredOptions ? "colored" : "neutral";
+    elements.resultMode.textContent = modeConfig.label;
   }
 
   function setAnswerButtonsDisabled(disabled) {
@@ -118,6 +173,7 @@
 
     elements.stimulus.textContent = state.currentQuestion.word;
     elements.stimulus.style.color = state.currentQuestion.inkCss;
+    elements.instruction.textContent = QUESTION_TYPES[state.currentQuestion.questionType].prompt;
     setAnswerButtonsDisabled(false);
 
     requestAnimationFrame(() => {
@@ -149,18 +205,24 @@
     state.endTimeoutId = null;
   }
 
-  function startGame() {
+  function startGame(mode = "normal") {
+    const selectedMode = Object.hasOwn(MODES, mode) ? mode : "normal";
     clearTimers();
-    state = createInitialState();
+    state = createInitialState(selectedMode);
     state.status = "playing";
     state.startedAt = performance.now();
     state.endsAt = state.startedAt + GAME_DURATION_MS;
 
+    applyModePresentation();
     showScreen("playing");
     elements.timer.textContent = "剩餘時間：60 秒";
     renderQuestion();
     state.timerIntervalId = window.setInterval(renderTimer, 100);
     state.endTimeoutId = window.setTimeout(finishGame, GAME_DURATION_MS);
+  }
+
+  function restartGame() {
+    startGame(state.mode);
   }
 
   function submitAnswer(colorId) {
@@ -182,7 +244,7 @@
     setAnswerButtonsDisabled(true);
 
     const reactionTimeMs = Math.max(0, submittedAt - state.questionStartedAt);
-    const isCorrect = colorId === state.currentQuestion.inkColorId;
+    const isCorrect = colorId === state.currentQuestion.correctColorId;
     state.total += 1;
 
     if (isCorrect) {
@@ -197,8 +259,10 @@
 
     state.allAnswers.push({
       selectedColorId: colorId,
-      correctColorId: state.currentQuestion.inkColorId,
+      correctColorId: state.currentQuestion.correctColorId,
+      inkColorId: state.currentQuestion.inkColorId,
       wordColorId: state.currentQuestion.wordColorId,
+      questionType: state.currentQuestion.questionType,
       isCongruent: state.currentQuestion.isCongruent,
       isCorrect,
       reactionTimeMs
@@ -269,6 +333,7 @@
 
   function getSnapshot() {
     return {
+      mode: state.mode,
       status: state.status,
       total: state.total,
       correct: state.correct,
@@ -283,7 +348,7 @@
   window.StroopGame = Object.freeze({
     init,
     start: startGame,
-    restart: startGame,
+    restart: restartGame,
     submitAnswer,
     goHome,
     getSnapshot

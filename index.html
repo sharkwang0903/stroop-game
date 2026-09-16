@@ -29,17 +29,43 @@
 
         <section class="mode-section" aria-labelledby="mode-title">
           <h2 id="mode-title">遊戲模式</h2>
-          <article class="mode-card">
-            <div class="mode-copy">
-              <span class="mode-number" aria-hidden="true">01</span>
-              <div>
-                <h3>一般模式</h3>
-                <p class="mode-duration">60 秒 Stroop 挑戰</p>
-                <p>在 60 秒內盡可能快速且準確地完成更多題目。</p>
+          <div class="mode-list">
+            <article class="mode-card">
+              <div class="mode-copy">
+                <span class="mode-number" aria-hidden="true">01</span>
+                <div>
+                  <h3>一般模式</h3>
+                  <p class="mode-duration">60 秒 Stroop 挑戰</p>
+                  <p>彩色答案按鈕提供直覺的顏色提示。</p>
+                </div>
               </div>
-            </div>
-            <button id="start-button" class="button button-primary" type="button">開始挑戰</button>
-          </article>
+              <button id="start-normal-button" class="button button-primary" type="button">開始挑戰</button>
+            </article>
+
+            <article class="mode-card">
+              <div class="mode-copy">
+                <span class="mode-number" aria-hidden="true">02</span>
+                <div>
+                  <h3>專家模式</h3>
+                  <p class="mode-duration">60 秒 Stroop 挑戰</p>
+                  <p>答案選項不提供顏色提示，只能依文字判斷。</p>
+                </div>
+              </div>
+              <button id="start-expert-button" class="button button-secondary" type="button">開始挑戰</button>
+            </article>
+
+            <article class="mode-card">
+              <div class="mode-copy">
+                <span class="mode-number" aria-hidden="true">03</span>
+                <div>
+                  <h3>困難模式</h3>
+                  <p class="mode-duration">60 秒 Stroop 挑戰</p>
+                  <p>題目問法會隨機切換，除了判斷字體顏色，也可能要求判斷文字內容。</p>
+                </div>
+              </div>
+              <button id="start-hard-button" class="button button-secondary" type="button">開始挑戰</button>
+            </article>
+          </div>
         </section>
       </section>
 
@@ -55,10 +81,10 @@
           </div>
 
           <div id="answer-grid" class="answer-grid" aria-label="顏色答案">
-            <button class="answer-button answer-red" type="button" data-color="red">紅色</button>
-            <button class="answer-button answer-blue" type="button" data-color="blue">藍色</button>
-            <button class="answer-button answer-green" type="button" data-color="green">綠色</button>
-            <button class="answer-button answer-yellow" type="button" data-color="yellow">黃色</button>
+            <button class="answer-button answer-red" type="button" data-color="red">紅</button>
+            <button class="answer-button answer-blue" type="button" data-color="blue">藍</button>
+            <button class="answer-button answer-green" type="button" data-color="green">綠</button>
+            <button class="answer-button answer-yellow" type="button" data-color="yellow">黃</button>
           </div>
         </div>
       </section>
@@ -67,6 +93,7 @@
         <header class="result-header">
           <p class="eyebrow">挑戰完成</p>
           <h1 id="result-title">你的結果</h1>
+          <p id="result-mode" class="result-mode">一般模式</p>
         </header>
 
         <dl class="results-grid" aria-label="遊戲結果">

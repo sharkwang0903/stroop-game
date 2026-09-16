@@ -21,7 +21,9 @@
     window.StroopDesktopControls.init();
     window.StroopMobileControls.init();
 
-    bindAction("start-button", window.StroopGame.start);
+    bindAction("start-normal-button", () => window.StroopGame.start("normal"));
+    bindAction("start-expert-button", () => window.StroopGame.start("expert"));
+    bindAction("start-hard-button", () => window.StroopGame.start("hard"));
     bindAction("replay-button", window.StroopGame.restart);
     bindAction("home-button", window.StroopGame.goHome);
   });
