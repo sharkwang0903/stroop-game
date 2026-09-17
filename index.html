@@ -9,6 +9,7 @@
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='white'/%3E%3Cpath d='M16 16h14v14H16zm18 0h14v14H34zM16 34h14v14H16zm18 0h14v14H34z' fill='none' stroke='%23181818' stroke-width='5'/%3E%3C/svg%3E">
     <link rel="stylesheet" href="style.css">
     <script src="survival-mode.js" defer></script>
+    <script src="result-comments.js" defer></script>
     <script src="game.js" defer></script>
     <script src="desktop-controls.js" defer></script>
     <script src="mobile-controls.js" defer></script>
@@ -137,6 +138,13 @@
             <dd><span id="result-survival-time">0.0</span><small>秒</small></dd>
           </div>
         </dl>
+
+        <section id="result-comment" class="result-comment" aria-labelledby="result-comment-title" hidden>
+          <h2 id="result-comment-title">本次評語</h2>
+          <p class="result-comment-headline"><strong id="result-comment-headline"></strong></p>
+          <p id="result-comment-summary"></p>
+          <p id="result-comment-advice"></p>
+        </section>
 
         <div class="result-actions">
           <button id="replay-button" class="button button-primary" type="button">再玩一次</button>

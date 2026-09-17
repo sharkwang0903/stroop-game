@@ -2,7 +2,7 @@
   "use strict";
 
   const INITIAL_TIME_MS = 20_000;
-  const CORRECT_BONUS_MS = 2_000;
+  const CORRECT_BONUS_MS = 1_000;
   const WRONG_PENALTY_MS = 2_000;
   const MAX_TIME_MS = 20_000;
   const OPTION_COUNT = 6;
