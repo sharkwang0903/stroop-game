@@ -31,31 +31,18 @@
   }
 
   function createOptions(question, colors) {
-    const correctColor = colors.find((color) => color.id === question.correctColorId);
-    const distractorColors = colors.filter((color) => color.id !== question.correctColorId);
-    const options = [];
-
-    if (question.questionType === "fontColor") {
-      options.push(makeOption(randomItem(colors), correctColor, question.questionType));
-
-      while (options.length < OPTION_COUNT) {
-        options.push(makeOption(
-          randomItem(colors),
-          randomItem(distractorColors),
-          question.questionType
-        ));
-      }
-    } else {
-      options.push(makeOption(correctColor, randomItem(colors), question.questionType));
-
-      while (options.length < OPTION_COUNT) {
-        options.push(makeOption(
-          randomItem(distractorColors),
-          randomItem(colors),
-          question.questionType
-        ));
-      }
-    }
+    const allOptions = colors.flatMap((wordColor) => (
+      colors.map((fontColor) => makeOption(wordColor, fontColor, question.questionType))
+    ));
+    const isCorrectOption = question.questionType === "fontColor"
+      ? (option) => option.fontColorId === question.correctColorId
+      : (option) => option.wordColorId === question.correctColorId;
+    const correctCandidates = allOptions.filter(isCorrectOption);
+    const distractorCandidates = allOptions.filter((option) => !isCorrectOption(option));
+    const options = [
+      randomItem(correctCandidates),
+      ...shuffle(distractorCandidates).slice(0, OPTION_COUNT - 1)
+    ];
 
     return shuffle(options);
   }
