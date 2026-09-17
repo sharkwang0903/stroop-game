@@ -383,25 +383,27 @@
       elements.resultSurvivalTime.textContent = results.survivalDurationSeconds.toFixed(1);
     }
 
-    const isStandardMode = ["normal", "expert", "hard"].includes(state.mode);
-    elements.resultComment.hidden = !isStandardMode;
-    if (isStandardMode) {
-      const comment = window.StroopResultComments.getStandardModeComment(
+    const comment = state.mode === "survival"
+      ? window.StroopResultComments.getSurvivalModeComment(
+        results.total,
+        results.accuracy
+      )
+      : window.StroopResultComments.getStandardModeComment(
         results.total,
         results.accuracy,
         results.averageReactionSeconds
       );
-      const reactionText = results.averageReactionSeconds === null
-        ? "--"
-        : `${results.averageReactionSeconds.toFixed(3)} 秒`;
-      const accuracyText = results.accuracy === null
-        ? "--"
-        : `${results.accuracy.toFixed(1)}%`;
+    const reactionText = results.averageReactionSeconds === null
+      ? "--"
+      : `${results.averageReactionSeconds.toFixed(3)} 秒`;
+    const accuracyText = results.accuracy === null
+      ? "--"
+      : `${results.accuracy.toFixed(1)}%`;
 
-      elements.resultCommentHeadline.textContent = comment.headline;
-      elements.resultCommentSummary.textContent = `你總共完成了 ${results.total} 題，平均反應時間為 ${reactionText}，準確率為 ${accuracyText}。`;
-      elements.resultCommentAdvice.textContent = comment.advice;
-    }
+    elements.resultComment.hidden = false;
+    elements.resultCommentHeadline.textContent = comment.headline;
+    elements.resultCommentSummary.textContent = `你總共完成了 ${results.total} 題，平均反應時間為 ${reactionText}，準確率為 ${accuracyText}。`;
+    elements.resultCommentAdvice.textContent = comment.advice;
   }
 
   function finishGame() {
